@@ -25,7 +25,3 @@ nginx.run:
 nginx.shell:
 	docker run -it --rm -p ${NGINX_PORT}:80 --entrypoint=/bin/ash ${PROJECT_NAME}_nginx
 
-alliance.open:
-	gcloud container clusters get-credentials k8s-prod --zone us-central1-a --project custos-prj
-	kubectl get pods -n alliance
-	kubectl port-forward alliance-ms-nginx-85fc6c86d7-m85m8 -n alliance 8000:80	
