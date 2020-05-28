@@ -1,47 +1,57 @@
 import React from 'react'
 import {TasksContext} from '../../provider/index'
+import {
+  Button,
+  ButtonGroup,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  CircularProgress
+} from '@material-ui/core';
 
- const List = () => {
-    const { list_task,updateData} = React.useContext(TasksContext);    
+ const ListTask = () => {
+    const {updateData} = React.useContext(TasksContext);    
     function deleteTask(task) {        
-        updateData(true, 'LOAD');  
-        updateData(task, 'DELETE');        
-        
+        updateData(task, 'DELETE');    
     }
-  
+    function selectTask(index) {        
+        updateData(index, 'INDEX');    
+    }
     return (
         <TasksContext.Consumer> 
-        {({list_task})=>(            
-                <div >
-                <table className="table">
-                    <thead>
-                        <tr>
-                        <th scope="col">Title</th>
-                        <th scope="col">Body</th>
-                        <th scope="col">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                        !list_task.loading ?
-                        list_task.map(function (row,index) {
-                            return (
-                                <tr>
-                                <td>{row.title}</td>
-                                <td>{row.body}</td>
-                                <td>{row.body}</td>
-                                <td><button type="button"  onClick={()=>deleteTask(row)} className="btn btn-outline-danger">Eliminar</button></td>
-                                </tr>
-                            )
-                            }):
-                            <div className="spinner-border m-5" role="status">
-                            <span className="sr-only">Loading...</span>
-                            </div>
-                        } 
-
-                    </tbody>
-                </table>
-            </div>
+        {({tasks,loading,index,previousState})=>(  
+              !loading?
+                <TableContainer >
+                  <Table  aria-label="simple table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Title</TableCell>
+                        <TableCell align="right">Body</TableCell>
+                        <TableCell align="right">Actions</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {tasks.map((row,_index) => (
+                        <TableRow key={row.title}>
+                          <TableCell component="th" scope="row">
+                            {row.title}
+                          </TableCell>
+                          <TableCell align="right">{row.body}</TableCell>
+                          <TableCell align="right">
+                          <ButtonGroup size="small" aria-label="small outlined button group">
+                               <Button onClick={()=>selectTask(_index)} color="primary">Edit</Button>
+                               <Button onClick={()=>deleteTask(row)} color="secondary">Delete</Button>
+                           </ButtonGroup>
+                           </TableCell>
+                       </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>:
+                <CircularProgress />            
         )} 
         </TasksContext.Consumer>
 
@@ -50,4 +60,4 @@ import {TasksContext} from '../../provider/index'
 };
 
 
-export default List
+export default ListTask

@@ -1,53 +1,77 @@
 import React from "react";
+import {produce} from "immer"
+import ServicesTasks from './services'
 export const TasksContext = React.createContext();
 
 const initialState = {
-    loading: true,
-    error : false,
-    tasks: []
+    loading: false,
+    error : false,   
+    tasks: [],
+    stateOriginal : null,
+    index: null
 };
-function reducer(state, action) {     
-       
-    switch (action.type) {
-        case 'LOAD':
-            return {
-                ...state, //Lo que devuelve un reducer es lo que se quedará en el state, por tanto, debe devolver todo lo que había antes (además de la información que cambia)
-                loading: action.data
-            }
-        case 'ERROR':
-            return {
-                ...state, //Lo que devuelve un reducer es lo que se quedará en el state, por tanto, debe devolver todo lo que había antes (además de la información que cambia)
-                error: action.data
-            }
-        case 'GET':
-            return {
-                ...state, //Lo que devuelve un reducer es lo que se quedará en el state, por tanto, debe devolver todo lo que había antes (además de la información que cambia)
-                tasks: action.data
-            }
-        case 'ADD':
-                return {
-                    ...state, //Lo que devuelve un reducer es lo que se quedará en el state, por tanto, debe devolver todo lo que había antes (además de la información que cambia)
-                    tasks: state.tasks.concat(action.data)
-                }
-        case 'DELETE':
-                return {
-                    ...state, //Lo que devuelve un reducer es lo que se quedará en el state, por tanto, debe devolver todo lo que había antes (además de la información que cambia)
-                    tasks: state.tasks.filter(task => task !== action.data)
-                }
-      default:
-        return state;
-    }
+
+
+function reducer(state, action) { 
+    console.log(action.type)
+    let nextState =  {} ;
+    if(action.type == "UNDO")
+        nextState = {...state.previousState}  
+    else 
+        nextState = reducerImmer(state,action);     
+
+    state = nextState;
+    return state; 
 }
 
-function Provider({ children }) {
-    const [state, dispatch] = React.useReducer(reducer, initialState);
+const reducerImmer = produce((draft, action) => {
     
-    const value = {  
-        list_task : state.tasks,
+    switch (action.type) {
+        case 'GET':   
+            draft.tasks = action.data;
+          break;
+        case 'INDEX':
+            draft.index = action.data;
+          break;
+        case 'DELETE':
+            draft.tasks.splice(action.data,1);
+          break;
+        case 'ADD':
+            draft.tasks.push(action.data);
+            ServicesTasks.addTask(action.data);        
+          break;
+        case 'LOAD':
+            draft.loading = action.data;
+          break;
+        case 'ERROR':
+            draft.error = action.data;
+          break;
+        case 'UPDATE':
+            draft.tasks[draft.index] = {
+                ...draft.tasks[draft.index],
+                ...action.data            
+            };  
+        break;           
+        default:
+            break;
+    }
+  
+ 
+});
+
+function Provider({ children }) {
+    const [state, dispatch] = React.useReducer(reducerImmer, initialState);
+    const value = {
+        tasks : state.tasks,
+        loading : state.loading,
+        error: state.error,
+        index : state.index,
+        previousState : state.previousState,
         updateData: (data,type) => {
             dispatch({ type: type, data });
         }
     };
+    
 
     return ( 
     <TasksContext.Provider value ={value}> 

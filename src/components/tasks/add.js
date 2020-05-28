@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import {TasksContext} from '../../provider/index'
-
+import {TextField,Button} from '@material-ui/core';
 
 const Add = () => {
-    const { list_task,updateData} = React.useContext(TasksContext);  
+    const { updateData} = React.useContext(TasksContext);  
     const [task, setTask] = useState({
         title: '',
         body: '',
@@ -20,19 +20,13 @@ const Add = () => {
         updateData(task, 'ADD');
     }
     return (
-        <div >
-            <form>
-             <div className="form-group">
-             <label for="exampleInputEmail1">Title</label>
-             <input type="text" className="form-control" onChange={handleInputChange} name="title"></input>             
-            </div>  
-            <div className="form-group">
-             <label for="exampleInputEmail1">Body</label>
-             <input type="text" className="form-control" onChange={handleInputChange} name="body"></input>             
-            </div> 
-            <button type="button" onClick={addTask} className="btn btn-primary">Agregar</button>
-           </form>
-        </div>
+        <form  noValidate autoComplete="off">
+        <TextField id="standard-basic" name="title" label="Title" onChange={handleInputChange}  />
+        <TextField id="standard-basic" name="body" label="Body" onChange={handleInputChange}/>
+        <Button variant="contained" onClick={addTask} color="primary">
+            Add
+        </Button>
+        </form>
     )
 };
 
